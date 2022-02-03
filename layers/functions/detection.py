@@ -10,6 +10,7 @@ class Detect(Function):
     scores and threshold to a top_k number of output predictions for both
     confidence score and locations.
     """
+    '''
     def __init__(self, num_classes, size, bkg_label, top_k, conf_thresh, nms_thresh):
         self.num_classes = num_classes
         self.background_label = bkg_label
@@ -20,8 +21,10 @@ class Detect(Function):
             raise ValueError('nms_threshold must be non negative.')
         self.conf_thresh = conf_thresh
         self.variance = cfg[str(size)]['variance']
+    '''
 
-    def forward(self, loc_data, conf_data, prior_data):
+    @staticmethod
+    def forward(self,num_classes, size, bkg_label, top_k, conf_thresh, nms_thresh,   loc_data, conf_data, prior_data):
         """
         Args:
             loc_data: (tensor) Loc preds from loc layers
@@ -33,18 +36,18 @@ class Detect(Function):
         """
         num = loc_data.size(0)  # batch size
         num_priors = prior_data.size(0)
-        output = torch.zeros(num, self.num_classes, self.top_k, 5)
+        output = torch.zeros(num, num_classes, top_k, 5)
         conf_preds = conf_data.view(num, num_priors,
-                                    self.num_classes).transpose(2, 1)
+                                    num_classes).transpose(2, 1)
 
         # Decode predictions into bboxes.
         for i in range(num):
-            decoded_boxes = decode(loc_data[i], prior_data, self.variance)
+            decoded_boxes = decode(loc_data[i], prior_data, cfg[str(size)]['variance'])
             # For each class, perform nms
             conf_scores = conf_preds[i].clone()
             #print(decoded_boxes, conf_scores)
-            for cl in range(1, self.num_classes):
-                c_mask = conf_scores[cl].gt(self.conf_thresh)
+            for cl in range(1, num_classes):
+                c_mask = conf_scores[cl].gt(conf_thresh)
                 scores = conf_scores[cl][c_mask]
                 #print(scores.dim())
                 if scores.size(0) == 0:
@@ -53,12 +56,13 @@ class Detect(Function):
                 boxes = decoded_boxes[l_mask].view(-1, 4)
                 # idx of highest scoring and non-overlapping boxes per class
                 #print(boxes, scores)
-                ids, count = nms(boxes, scores, self.nms_thresh, self.top_k)
+                ids, count = nms(boxes, scores, nms_thresh, top_k)
                 output[i, cl, :count] = \
                     torch.cat((scores[ids[:count]].unsqueeze(1),
                                boxes[ids[:count]]), 1)
         flt = output.contiguous().view(num, -1, 5)
         _, idx = flt[:, :, 0].sort(1, descending=True)
         _, rank = idx.sort(1)
-        flt[(rank < self.top_k).unsqueeze(-1).expand_as(flt)].fill_(0)
+        flt[(rank < top_k).unsqueeze(-1).expand_as(flt)].fill_(0)
         return output
+        

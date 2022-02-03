@@ -9,6 +9,7 @@ import torch
 import torch.nn as nn
 import torch.backends.cudnn as cudnn
 from torch.autograd import Variable
+from torch.autograd import Function
 from data import VOC_ROOT, VOCAnnotationTransform, VOCDetection, BaseTransform
 from data import VOC_CLASSES as labelmap
 import torch.utils.data as data
@@ -101,6 +102,8 @@ class Timer(object):
             return self.average_time
         else:
             return self.diff
+            
+
 
 
 def parse_rec(filename):
@@ -379,8 +382,18 @@ def test_net(save_folder, net, cuda, dataset, transform, top_k,
 
     for i in range(num_images):
         im, gt, h, w = dataset.pull_item(i)
+        
 
         x = Variable(im.unsqueeze(0))
+        #x = torch.tensor(im.unsqueeze(0), requires_grad=True)
+        #===
+        #dtype = torch.float
+        #device = torch.device("cuda")
+        #x = torch.tensor(im.unsqueeze(0), device=device, dtype=dtype)
+        #===
+        # replace new adagrade function with this Exp class implementation  by calling the apply method:
+        #x = Exp.apply(im.unsqueeze(0))
+
         if args.cuda:
             x = x.cuda()
         _t['im_detect'].tic()

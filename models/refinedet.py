@@ -33,6 +33,7 @@ class RefineDet(nn.Module):
         self.priorbox = PriorBox(self.cfg[str(size)])
         with torch.no_grad():
             self.priors = self.priorbox.forward()
+            
         self.size = size
 
         # SSD network
@@ -53,7 +54,8 @@ class RefineDet(nn.Module):
 
         if phase == 'test':
             self.softmax = nn.Softmax(dim=-1)
-            self.detect = Detect_RefineDet(num_classes, self.size, 0, 1000, 0.01, 0.45, 0.01, 500)
+            self.detect = Detect_RefineDet()
+
 
     def forward(self, x):
         """Applies network layers and ops on input image(s) x.
@@ -138,7 +140,8 @@ class RefineDet(nn.Module):
 
         if self.phase == "test":
             #print(loc, conf)
-            output = self.detect(
+            output = self.detect.apply(
+                self.num_classes, self.size, 0, 1000, 0.01, 0.45, 0.01, 500,
                 arm_loc.view(arm_loc.size(0), -1, 4),           # arm loc preds
                 self.softmax(arm_conf.view(arm_conf.size(0), -1,
                              2)),                               # arm conf preds
