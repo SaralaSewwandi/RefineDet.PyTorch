@@ -20,7 +20,7 @@ model.load_state_dict(torch.load('/home/bmw/anaconda3/envs/refinedet37/RefineDet
 # a list here shorter than the number of inputs to the model, and we will
 # only set that subset of names, starting from the beginning.
 input_names = [ "num_classes", "size", "bkg_label", "top_k", "conf_thresh", "nms_thresh", "objectness_thre", "keep_top_k","arm_loc_data" , "arm_conf_data", "odm_loc_data", "odm_conf_data", "prior_data" ]
-output_names = [ "output" ]
+output_names = ("output")
 
 
 num_classes = 21
