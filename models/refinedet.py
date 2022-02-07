@@ -149,7 +149,8 @@ class RefineDet(nn.Module):
                 self.softmax(odm_conf.view(odm_conf.size(0), -1,
                              self.num_classes)),                # odm conf preds
                 self.priors.type(type(x.data))                  # default boxes
-            )
+            )            
+            
         else:
             output = (
                 arm_loc.view(arm_loc.size(0), -1, 4),

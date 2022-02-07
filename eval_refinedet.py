@@ -440,6 +440,7 @@ if __name__ == '__main__':
     net.load_state_dict(torch.load(args.trained_model))
     net.eval()
     print('Finished loading model!')
+    print('model',args.trained_model )
     # load data
     dataset = VOCDetection(args.voc_root, [('2007', set_type)],
                            BaseTransform(int(args.input_size), dataset_mean),
