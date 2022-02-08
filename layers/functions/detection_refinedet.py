@@ -25,7 +25,7 @@ class Detect_RefineDet(Function):
         self.objectness_thre = objectness_thre
         self.variance = cfg[str(size)]['variance']
     '''
-    
+    @staticmethod
     def forward(self, num_classes, size, bkg_label, top_k, conf_thresh, nms_thresh, 
                 objectness_thre, keep_top_k,    arm_loc_data, arm_conf_data, odm_loc_data, odm_conf_data, prior_data):
         """
@@ -77,5 +77,11 @@ class Detect_RefineDet(Function):
         _, rank = idx.sort(1)
         flt[(rank < keep_top_k).unsqueeze(-1).expand_as(flt)].fill_(0)
         return output
+        
+    '''
+    @staticmethod
+    def symbolic(graph, x):
+      graph.at("pow", x, exponent_f = 2.0) # compute x**2
+    '''
         
 
