@@ -22,7 +22,7 @@ model.load_state_dict(torch.load('/home/bmw/anaconda3/envs/refinedet37/RefineDet
 input_names = [ "num_classes", "size", "bkg_label", "top_k", "conf_thresh", "nms_thresh", "objectness_thre", "keep_top_k","arm_loc_data" , "arm_conf_data", "odm_loc_data", "odm_conf_data", "prior_data" ]
 output_names = ["output"]
 
-
+'''
 num_classes = 21
 size = 320
 bkg_label = 0
@@ -38,6 +38,10 @@ odm_loc_data = torch.randn(1, 6375, 4)
 odm_conf_data = torch.randn(1, 6375, 21)
 prior_data = torch.randn(6375, 4)
 
-dummy_input = [num_classes, size, bkg_label, top_k, conf_thresh, nms_thresh, objectness_thre, keep_top_k, arm_loc_data, arm_conf_data, odm_loc_data, odm_conf_data, prior_data]
 
-torch.onnx.export(model, dummy_input, "refinedet.onnx", verbose=True, input_names=input_names, output_names=output_names)
+dummy_input = [num_classes, size, bkg_label, top_k, conf_thresh, nms_thresh, objectness_thre, keep_top_k, arm_loc_data, arm_conf_data, odm_loc_data, odm_conf_data, prior_data]
+'''
+#dummy input defined with batch size = 32 and  image dimensions 3, 320, 320
+dummy_input = torch.randn(32, 3, 320, 320)
+
+torch.onnx.export(model, dummy_input, "/home/bmw/anaconda3/envs/refinedet37/RefineDet.PyTorch/refinedet.onnx", verbose=True, input_names=input_names, output_names=output_names)
